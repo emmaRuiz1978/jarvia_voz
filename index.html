@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Jarvis - Prueba de voz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #101820;
+      color: white;
+      text-align: center;
+      padding: 35px 16px;
+    }
+    main {
+      max-width: 500px;
+      margin: 35px auto;
+      padding: 25px;
+      border: 1px solid #34495e;
+      border-radius: 18px;
+      background: #1b2838;
+    }
+    button {
+      padding: 14px 22px;
+      margin: 8px;
+      border: 0;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #hablar { background: #00cba9; color: #101820; }
+    #limpiar { background: #34495e; color: white; }
+    #texto {
+      min-height: 65px;
+      padding: 15px;
+      background: #101820;
+      border-radius: 10px;
+      overflow-wrap: anywhere;
+    }
+    #estado { color: #00cba9; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>JARVIS</h1>
+    <p>Prueba independiente del micrófono</p>
+
+    <button id="hablar" onclick="escuchar()">
+      🎙️ Hablar
+    </button>
+
+    <button id="limpiar" onclick="limpiar()">
+      Limpiar
+    </button>
+
+    <p id="estado">Listo para escucharte.</p>
+    <h3>Te entendí:</h3>
+    <div id="texto">Tu voz aparecerá aquí.</div>
+  </main>
+
+  <script>
+    function escuchar() {
+      const estado = document.getElementById('estado');
+      const texto = document.getElementById('texto');
+
+      const API =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+      if (!API) {
+        estado.textContent =
+          'Este navegador no admite reconocimiento de voz.';
+        return;
+      }
+
+      const reconocimiento = new API();
+      reconocimiento.lang = 'es-CO';
+      reconocimiento.continuous = false;
+      reconocimiento.interimResults = false;
+
+      estado.textContent = 'Te escucho, parce...';
+
+      reconocimiento.onresult = function(evento) {
+        texto.textContent = evento.results[0][0].transcript;
+        estado.textContent = '¡Te entendí!';
+      };
+
+      reconocimiento.onerror = function(evento) {
+        estado.textContent = 'Error: ' + evento.error;
+      };
+
+      reconocimiento.onend = function() {
+        if (estado.textContent === 'Te escucho, parce...') {
+          estado.textContent = 'No recibí voz. Intenta de nuevo.';
+        }
+      };
+
+      try {
+        reconocimiento.start();
+      } catch (error) {
+        estado.textContent = 'No se pudo iniciar: ' + error.message;
+      }
+    }
+
+    function limpiar() {
+      document.getElementById('texto').textContent =
+        'Tu voz aparecerá aquí.';
+      document.getElementById('estado').textContent =
+        'Listo para escucharte.';
+    }
+  </script>
+</body>
+</html>
